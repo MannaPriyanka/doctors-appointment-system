@@ -38,6 +38,27 @@ module Api
       end
     end
 
+    # Update availability for a doctor
+    def update
+      time_slot = TimeSlot.find_by(id: params[:id], doctor_id: current_user.id)
+      return render json: { error: 'Time slot not found or unauthorized' }, status: :not_found unless time_slot
+
+      if time_slot.update(time_slot_params)
+        render json: time_slot, status: :ok
+      else
+        render json: { errors: time_slot.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+
+    # Delete a time slot
+    def destroy
+      time_slot = TimeSlot.find_by(id: params[:id], doctor_id: current_user.id)
+      return render json: { error: 'Time slot not found or unauthorized' }, status: :not_found unless time_slot
+
+      time_slot.destroy
+      head :no_content
+    end
+
     private
 
     def time_slot_params
