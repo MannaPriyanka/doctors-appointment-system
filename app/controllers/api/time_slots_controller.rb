@@ -4,8 +4,25 @@ module Api
 
     # List all available time slots
     def index
-      time_slots = TimeSlot.includes(:doctor).all
-      render json: time_slots.as_json(include: { doctor: { only: [:id, :first_name, :last_name] } }), status: :ok
+      time_slots = TimeSlot.includes(:doctor)
+                          .all
+                          .group_by(&:doctor)
+
+      response = time_slots.map do |doctor, slots|
+        next_available_slot = slots.select { |slot| slot.start_time > Time.current }.min_by(&:start_time)
+
+        {
+          doctor: {
+            id: doctor.id,
+            first_name: doctor.first_name,
+            last_name: doctor.last_name,
+            next_available_slot: next_available_slot ? next_available_slot.start_time : nil
+          },
+          time_slots: slots.as_json(only: [:start_time, :end_time])
+        }
+      end
+
+      render json: response, status: :ok
     end
 
     # Add availability for a doctor
