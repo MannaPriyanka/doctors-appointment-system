@@ -1,0 +1,12 @@
+<div> 
+  <h1>Reminder: Your Appointment with Dr. <%= @doctor.first_name %> <%= @doctor.last_name %></h1>
+  <p>Dear <%= @patient.first_name %> <%= @patient.last_name %>,</p>
+  <p>This is a reminder for your upcoming appointment:</p>
+  <p><strong>Doctor:</strong> Dr. <%= @doctor.first_name %> <%= @doctor.last_name %></p>
+  <p><strong>Date:</strong> <%= @appointment.start_time.strftime('%B %d, %Y') %></p>
+  <p><strong>Time:</strong> <%= @appointment.start_time.strftime('%I:%M %p') %></p>
+  <p>We look forward to seeing you at your appointment!</p>
+  <p>If you have any questions or need to reschedule, please contact us.</p>
+  <p>Best regards,</p>
+  <p>Your Healthcare Team</p>
+</div>
