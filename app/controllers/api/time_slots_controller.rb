@@ -4,13 +4,22 @@ module Api
 
     # List all available time slots
     def index
-      time_slots = TimeSlot.includes(:doctor)
-                          .all
-                          .group_by(&:doctor)
-
+      # Check if the search query is provided
+      if params[:doctor_name].present?
+        time_slots = TimeSlot.joins(:doctor)
+                             .where('doctors.first_name LIKE ? OR doctors.last_name LIKE ?', "%#{params[:doctor_name]}%", "%#{params[:doctor_name]}%")
+      else
+        # If no search query, get all time slots
+        time_slots = TimeSlot.includes(:doctor).all
+      end
+    
+      # Group the time slots by doctor
+      time_slots = time_slots.group_by(&:doctor)
+    
+      # Prepare the response with doctor's details and their available time slots
       response = time_slots.map do |doctor, slots|
         next_available_slot = slots.select { |slot| slot.start_time > Time.current }.min_by(&:start_time)
-
+    
         {
           doctor: {
             id: doctor.id,
@@ -21,9 +30,9 @@ module Api
           time_slots: slots.as_json(only: [:start_time, :end_time])
         }
       end
-
+    
       render json: response, status: :ok
-    end
+    end    
 
     # Add availability for a doctor
     def create
