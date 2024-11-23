@@ -7,7 +7,7 @@ module Api
       # Check if the search query is provided
       if params[:doctor_name].present?
         time_slots = TimeSlot.joins(:doctor)
-                             .where('doctors.first_name LIKE ? OR doctors.last_name LIKE ?', "%#{params[:doctor_name]}%", "%#{params[:doctor_name]}%")
+                             .where('users.first_name LIKE ? OR users.last_name LIKE ?', "%#{params[:doctor_name]}%", "%#{params[:doctor_name]}%")
       else
         # If no search query, get all time slots
         time_slots = TimeSlot.includes(:doctor).all

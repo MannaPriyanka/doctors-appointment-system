@@ -30,6 +30,8 @@ gem 'jbuilder', '~> 2.5'
 # For JSON web token
 gem "jwt"
 
+gem 'pry'
+gem 'pry-rails' # Optional, for Rails integration
 # for pagination
 gem "will_paginate"
 
