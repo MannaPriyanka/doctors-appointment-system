@@ -18,7 +18,14 @@ module Api
     
       # Prepare the response with doctor's details and their available time slots
       response = time_slots.map do |doctor, slots|
-        next_available_slot = slots.select { |slot| slot.start_time > Time.current }.min_by(&:start_time)
+        appointments = Appointment.where(doctor_id: doctor.id).pluck(:start_time, :end_time)
+        available_slots = slots.reject do |slot|
+          appointments.any? do |appointment_start, appointment_end|
+            slot.start_time == appointment_start && slot.end_time == appointment_end
+          end
+        end
+
+        next_available_slot = available_slots.select { |slot| slot.start_time > Time.current }.min_by(&:start_time)
     
         {
           doctor: {
@@ -27,7 +34,7 @@ module Api
             last_name: doctor.last_name,
             next_available_slot: next_available_slot ? next_available_slot.start_time : nil
           },
-          time_slots: slots.as_json(only: [:start_time, :end_time])
+          time_slots: available_slots.as_json(only: [:start_time, :end_time])
         }
       end
     
